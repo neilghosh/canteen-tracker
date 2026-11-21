@@ -20,6 +20,7 @@ const page = `<!doctype html>
 </head>
 <body>
   <h1>Campus Canteen Expense Tracker</h1>
+  <p id="total-spend" aria-live="polite">Total Spend: ₹0.00</p>
   <form id="expense-form">
     <input name="item" type="text" placeholder="Item" aria-label="Item" required>
     <select name="category" aria-label="Category">
@@ -28,20 +29,53 @@ const page = `<!doctype html>
     <input name="amount" type="number" placeholder="Amount (₹)" aria-label="Amount in rupees" min="0" step="0.01" required>
     <button type="submit">Add</button>
   </form>
+  <label for="category-filter">Filter by category</label>
+  <select id="category-filter">
+    <option value="All">All</option>
+    <option value="Food">Food</option>
+    <option value="Beverage">Beverage</option>
+    <option value="Stationery">Stationery</option>
+  </select>
   <ul id="expenses"></ul>
   <script>
     const form = document.querySelector('#expense-form');
     const list = document.querySelector('#expenses');
+    const categoryFilter = document.querySelector('#category-filter');
+    const totalSpend = document.querySelector('#total-spend');
+    const formatCurrency = amount => new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR'
+    }).format(amount);
     async function renderExpenses() {
       const response = await fetch('/api/expenses');
       const expenses = await response.json();
+      totalSpend.textContent = 'Total Spend: ' + formatCurrency(
+        expenses.reduce((total, expense) => total + expense.amount, 0)
+      );
       list.replaceChildren();
-      for (const expense of expenses) {
+      const visibleExpenses = categoryFilter.value === 'All'
+        ? expenses
+        : expenses.filter(expense => expense.category === categoryFilter.value);
+      for (const expense of visibleExpenses) {
         const row = document.createElement('li');
-        row.textContent = expense.item + ' — ' + expense.category + ' — ₹' + expense.amount;
+        const details = document.createElement('span');
+        details.textContent = expense.item + ' — ' + expense.category + ' — ' + formatCurrency(expense.amount);
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', async () => {
+          const deleteResponse = await fetch('/api/expenses/' + expense.id, { method: 'DELETE' });
+          if (!deleteResponse.ok) {
+            alert('Could not delete expense.');
+            return;
+          }
+          await renderExpenses();
+        });
+        row.append(details, ' ', deleteButton);
         list.append(row);
       }
     }
+    categoryFilter.addEventListener('change', renderExpenses);
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const data = new FormData(form);
@@ -87,11 +121,27 @@ export function createApp() {
           res.end(JSON.stringify({ error: 'Invalid expense' }));
           return;
         }
-        const expense = { id: Date.now(), item: input.item, category: input.category, amount: input.amount };
+        const expense = {
+          id: expenses.reduce((nextId, current) => Math.max(nextId, current.id + 1), 1),
+          item: input.item,
+          category: input.category,
+          amount: input.amount
+        };
         expenses.push(expense);
         res.writeHead(201, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(expense));
       });
+    } else if (req.method === 'DELETE' && /^\/api\/expenses\/\d+$/.test(req.url)) {
+      const id = Number(req.url.slice('/api/expenses/'.length));
+      const index = expenses.findIndex(expense => expense.id === id);
+      if (index === -1) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Expense not found' }));
+        return;
+      }
+      expenses.splice(index, 1);
+      res.writeHead(204);
+      res.end();
     } else {
       res.writeHead(404);
       res.end('Not found');
