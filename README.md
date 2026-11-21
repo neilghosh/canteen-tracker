@@ -8,3 +8,11 @@ Try these workflow prompts in order (from `.agents/prompts/`):
 - `/1-visualize` — understand the app.
 - `/2-add-feature` — add workshop features.
 - `/3-test-and-verify` — test and verify them.
+
+## Checkout the starting state
+
+To check out the version where the expense requirements are not implemented:
+
+```powershell
+git switch --detach requirements-not-implemented
+```
