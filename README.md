@@ -2,12 +2,7 @@
 
 A zero-dependency Node.js workshop project.
 
-Clone the repository and enter its folder.
-Start the app:
-```sh
-npm start
-```
-Open http://localhost:3000. Run the tests with `npm test`.
+See [AGENTS.md](AGENTS.md) for project commands and repository guidance.
 
 Try these workflow prompts in order (from `.agents/prompts/`):
 - `/1-visualize` — understand the app.

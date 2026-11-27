@@ -1,6 +1,8 @@
 ---
 name: diagram
-description: Explains code flows visually using simple Mermaid diagrams for beginners.
+description: Use when asked to visually explain how code or an application works.
 ---
 
-Output a simple Mermaid `flowchart TD` with plain-English labels. Summarize how the routes and UI connect in 3 short bullet points.
+Inspect the relevant code and explain the end-to-end flow for beginners.
+Output a simple Mermaid `flowchart TD` with plain-English labels showing the request flow.
+Summarize how the routes and UI connect in 3 short bullet points.
