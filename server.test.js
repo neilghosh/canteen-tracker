@@ -56,3 +56,14 @@ test('DELETE /api/expenses/:id removes an expense', async (t) => {
   const missingResponse = await fetch(`${baseUrl}/api/expenses/${created.id}`, { method: 'DELETE' });
   assert.equal(missingResponse.status, 404);
 });
+
+test('GET /api/demo-error returns 500 with error message', async (t) => {
+  const server = createApp().listen(0);
+  t.after(() => new Promise((resolve, reject) => {
+    server.close(error => error ? reject(error) : resolve());
+  }));
+  const response = await fetch(`http://localhost:${server.address().port}/api/demo-error`);
+  assert.equal(response.status, 500);
+  const body = await response.json();
+  assert.deepEqual(body, { error: 'Demo error triggered' });
+});

@@ -142,6 +142,14 @@ export function createApp() {
       expenses.splice(index, 1);
       res.writeHead(204);
       res.end();
+    } else if (req.method === 'GET' && req.url === '/api/demo-error') {
+      try {
+        throw new Error('Demo error triggered');
+      } catch (err) {
+        console.error(err);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.message }));
+      }
     } else {
       res.writeHead(404);
       res.end('Not found');
