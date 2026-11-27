@@ -150,5 +150,6 @@ export function createApp() {
 }
 
 if (process.argv[1] && import.meta.url === new URL('file:///' + process.argv[1].replace(/\\/g, '/').replace(/^\/+/, '')).href) {
-  createApp().listen(3000, () => console.log('Listening on http://localhost:3000'));
+  const port = Number(process.env.PORT) || 3000;
+  createApp().listen(port, () => console.log(`Listening on http://localhost:${port}`));
 }
