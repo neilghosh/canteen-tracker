@@ -1,6 +1,5 @@
 ---
-description: Add unit tests, run npm test, and verify in the browser
+description: Build and test the API, then verify the app in a browser
 ---
 
-1. Add unit tests in `server.test.js` covering `POST /api/expenses` and `DELETE /api/expenses/:id`, and run `npm test`.
-2. Start the server on port 3000, open `http://localhost:3000` in the browser, add "Vada Pav" for ₹30, verify the total updates, and delete it to confirm removal.
+Verify Acceptance criteria in `requirements.md`.
